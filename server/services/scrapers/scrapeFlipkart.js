@@ -12,7 +12,6 @@ export const scrapeFlipkart = async (query, domain = "flipkart.com") => {
 
   const page = await browser.newPage();
 
-
   await page.setViewport({ width: 1366, height: 768 });
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -31,27 +30,27 @@ export const scrapeFlipkart = async (query, domain = "flipkart.com") => {
   // Scrape inside page context
   const results = await page.evaluate(() => {
     const items = [];
-  
+
     const productCardSelectors = [
-      "div._1AtVbE",         // classic layout
-      "div._13oc-S",         // variation 1
-      "div.DOjaWF.YJG4Cf",   // newer layout
+      "div._1AtVbE", // classic layout
+      "div._13oc-S", // variation 1
+      "div.DOjaWF.YJG4Cf", // newer layout
     ];
-  
+
     const cards = [];
     productCardSelectors.forEach((sel) => {
       document.querySelectorAll(sel).forEach((el) => cards.push(el));
     });
-  
+
     cards.forEach((card) => {
       const title =
         card.querySelector("div._4rR01T")?.innerText?.trim() || // classic
-        card.querySelector("div.KzDlHZ")?.innerText?.trim();    // new layout
-  
+        card.querySelector("div.KzDlHZ")?.innerText?.trim(); // new layout
+
       const price =
         card.querySelector("div._30jeq3._1_WHN1")?.innerText?.trim() || // classic
-        card.querySelector("div.Nx9bqj._4b5DiR")?.innerText?.trim();    // new layout
-  
+        card.querySelector("div.Nx9bqj._4b5DiR")?.innerText?.trim(); // new layout
+
       const anchor = card.querySelector("a");
       const rawHref = anchor?.getAttribute("href");
       const fullLink = rawHref
@@ -59,9 +58,9 @@ export const scrapeFlipkart = async (query, domain = "flipkart.com") => {
           ? rawHref
           : `https://www.flipkart.com${rawHref}`
         : null;
-  
+
       // Only add complete items
-      if (title || price || fullLink && fullLink.includes("/p/")) {
+      if (title || price || (fullLink && fullLink.includes("/p/"))) {
         items.push({
           productName: title,
           price: price.replace(/[^0-9]/g, ""),
@@ -71,13 +70,13 @@ export const scrapeFlipkart = async (query, domain = "flipkart.com") => {
         });
       }
     });
-  
+
     return {
       items,
       logs: [`✅ Extracted ${items.length} items from Flipkart.`],
     };
   });
-  
 
+  await browser.close();
   return results;
 };

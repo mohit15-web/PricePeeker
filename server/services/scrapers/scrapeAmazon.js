@@ -67,6 +67,7 @@ export const scrapeAmazon = async (query, domain = "amazon.com") => {
         return { items, logs };
       }, domain);      
       
+    await browser.close();
     return results;
   } catch (error) {
     console.error("Amazon scraping failed:", error.message);
