@@ -172,20 +172,7 @@ const Index = () => {
                       {item.price} {item.currency}
                     </span>
                   </p>
-                  {item.link ? (
-                    <a
-                      href={item.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-primary underline"
-                    >
-                      View Product
-                    </a>
-                  ) : (
-                    <p className="text-sm italic text-gray-500">
-                      No link available
-                    </p>
-                  )}
+                  
                 </div>
               ))}
             </div>
@@ -193,21 +180,7 @@ const Index = () => {
         </section>
       )}
 
-      {/* Results section */}
-      {userCollection.length > 0 && (
-        <section className="py-12">
-          <div className="container">
-            <h2 className="text-2xl md:text-3xl font-bold mb-8">
-              Price Results
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {userCollection.map((item, i) => (
-                <AssetCard key={i} {...item} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+     
 
        {/* Newsletter section */}
        <section className="py-16 md:py-24 bg-accent/30">

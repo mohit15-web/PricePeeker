@@ -19,13 +19,13 @@ export const scrapeAmazon = async (query, domain = "amazon.com") => {
     });
 
     const page = await browser.newPage();
-    page.on("console", msg => console.log("PAGE LOG:", msg.text()));
 
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36"
     );
 
     await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
+    
     await page.waitForSelector(".s-result-item", { timeout: 15000 });
 
     const results = await page.evaluate((domain) => {
@@ -67,10 +67,14 @@ export const scrapeAmazon = async (query, domain = "amazon.com") => {
         return { items, logs };
       }, domain);      
       
-    await browser.close();
     return results;
   } catch (error) {
     console.error("Amazon scraping failed:", error.message);
     return { items: [], logs: ["Amazon scraping failed: " + error.message] };
   }
 };
+/* 
+title - KzDlHZ 
+link - 
+price - Nx9bqj _4b5DiR
+*/

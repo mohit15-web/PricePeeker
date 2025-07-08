@@ -1,8 +1,6 @@
 import { getSitesByCountry } from "../utils/countrySites.js";
 import { scrapeAmazon } from "./scrapers/scrapeAmazon.js";
-import { scrapeApple } from "./scrapers/scrapeApple.js"; // if you implement this
-import { scrapeFlipkart } from "./scrapers/scrapeFlipkart.js"; // if you implement this
-import { validateMatch } from "./aiMatcher.js";
+import { scrapeFlipkart } from "./scrapers/scrapeFlipkart.js";
 
 const getPrices = async (country, query) => {
   const sites = getSitesByCountry(country);
@@ -15,33 +13,31 @@ const getPrices = async (country, query) => {
     console.log("scraping site:", site);
 
     try {
-      if (site.includes("amazon")) {
-        console.log("scrapping amazon");
-        const { items } = await scrapeAmazon(query, site);
-        scraped.push(...items); // append to scraped
-        console.log("scraped", scraped)
-      } else if (site.includes("apple.com")) {
-        console.log("scrapping apple");
-        const { items } = await scrapeApple(query, site);
-        scraped.push(...items);
-      } else if (site.includes("flipkart")) {
+      if (site.includes("flipkart")) {
         console.log("scrapping flipkart");
         const { items } = await scrapeFlipkart(query, site);
         scraped.push(...items);
-        console.log("scraped", scraped)
+        console.log("scraped", scraped);
+      } else if (site.includes("amazon")) {
+        console.log("scrapping amazon");
+        const { items } = await scrapeAmazon(query, site);
+        scraped.push(...items); // append to scraped
+        console.log("scraped", scraped);
       }
     } catch (err) {
       console.warn(`Error scraping ${site}:`, err.message);
     }
   }
 
+  const normalize = (str) => str.toLowerCase().replace(/[^\w\s]/gi, "");
+
   for (const result of scraped) {
-    const isValid = await validateMatch(result.productName, query);
-    if (isValid === true) allResults.push(result);
-    if (isValid === null) {
-      console.warn("Skipping further Gemini checks due to rate limit.");
-      break;
-    }
+    const title = normalize(result.productName || "");
+    const q = normalize(query);
+
+    const isMatch = q.split(" ").every((word) => title.includes(word));
+
+    if (isMatch) allResults.push(result);
   }
 
   return allResults.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
